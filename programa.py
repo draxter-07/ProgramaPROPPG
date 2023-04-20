@@ -380,10 +380,10 @@ def estatistica_ict():
   media = 0
   for porc in dados_selec:
    media = media + int(porc)
-  media = round(media/len(list(dados_selec)), 4)*100
-  print('- A média da porcentagem do trabalho feita por alunos prováveis de pós graduação: ' + str(media) + '%')
- except DivisionByZeroError:
-  print('- Não foi possível evaluar a média da porcentagem do trabalho feito por alunos prováveis de pós graduação')
+  media = round((media/len(list(dados_selec)))*10, 2)
+  print('\n- A média da porcentagem do trabalho feita por alunos prováveis de pós graduação: ' + str(media) + '%')
+ except ZeroDivisionError:
+  print('\n- Não foi possível evaluar a média da porcentagem do trabalho feito por alunos prováveis de pós graduação')
 #
 # média da porcentagem do trabalho feita por alunos de cada fomento
 #
@@ -397,10 +397,10 @@ def estatistica_ict():
    media = 0
    for porc in dados_selec:
     media = media + int(porc)
-   media = round(media/len(list(dados_selec)), 4)*100
-   print('- A média da porcentagem do trabalho feita por alunos ' + fomento + ': ' + str(media) + '%')
-  except DivisionByZeroError:
-   print('- Não foi possível evaluar a média da porcentagem do trabalho feito por alunos ' + fomento)
+   media = round((media/len(list(dados_selec)))*10, 2)
+   print('\n- A média da porcentagem do trabalho feita por alunos ' + fomento + ': ' + str(media) + '%')
+  except ZeroDivisionError:
+   print('\n- Não foi possível evaluar a média da porcentagem do trabalho feito por alunos ' + fomento)
 #
 # média da expectativa de porcentagem de conclusão do trabalho dos alunos de cada fomento
 #
@@ -414,35 +414,35 @@ def estatistica_ict():
    media = 0
    for porc in dados_selec:
     media = media + int(porc)
-   media = round(media/len(list(dados_selec)), 4)*100
-   print('- A média da expectativa de porcentagem do trabalho entregue por alunos ' + fomento + ': ' + str(media) + '%')
-  except DivisionByZeroError:
-   print('- Não foi possível evaluar a média da expectativa de porcentagem do trabalho entregue por alunos ' + fomento)
+   media = round((media/len(list(dados_selec)))*10, 2)
+   print('\n- A média da expectativa de porcentagem do trabalho entregue por alunos ' + fomento + ': ' + str(media) + '%')
+  except ZeroDivisionError:
+   print('\n- Não foi possível evaluar a média da expectativa de porcentagem do trabalho entregue por alunos ' + fomento)
 #
 # Curso de graduação com as melhores porcentagens de trabalho concluído até agora
 #
- cursos_apar_soma = []
- for parte in dados:
-  if len(list(cursos_apar_soma)) == 0:
-   cursos_apar_soma.append([parte[2], 1, int(parte[5])])
-  else:
-   tent = 0
-   for part in cursos_apar_soma:
-    if part[0] == parte[2]:
-     part[1] = part[1] + 1
-     part[2] = part[2] + int(parte[5])
-    else:
-     tent = tent + 1
-   if tent == len(list(cursos_apar_soma)):
-    cursos_apar_soma.append([parte[2], 1, int(parte[5])])
- for art in cursos_apar_soma:
-  media = media + art[2]
-  media = round(media/art[1], 4)*100
-  art = [media, art[0], int(art[1])]
- cursos_apar_soma.sort(reverse=True)
- print('- Os cursos com maiores porcentagens de trabalho concluído são:')
- for parte in cursos_apar_soma:
-  print('- ' + parte[1] + ': ' + str(parte[0]) + '% (' + str(parte[2]) + ' aparições)')
+# cursos_apar_soma = []
+# for parte in dados:
+#  if len(list(cursos_apar_soma)) == 0:
+#   cursos_apar_soma.append([parte[2], 1, int(parte[5])])
+#  else:
+#   tent = 0
+#   for part in cursos_apar_soma:
+#    if part[0] == parte[2]:
+#     part[1] = part[1] + 1
+#     part[2] = part[2] + int(parte[5])
+#   else:
+#    tent = tent + 1
+#   if tent == len(list(cursos_apar_soma)):
+#    cursos_apar_soma.append([parte[2], 1, int(parte[5])])
+# for art in cursos_apar_soma:
+#  media = media + art[2]
+#  media = round((media/art[1])*10, 4)
+#  art = [media, art[0], int(art[1])]
+# cursos_apar_soma.sort(reverse=True)
+# print('- Os cursos com maiores porcentagens de trabalho concluído são:')
+# for parte in cursos_apar_soma:
+#  print('-- ' + str(parte[1]) + ': ' + str(parte[0]) + '% (' + str(parte[2]) + ' aparições)')
 #
 # cursos mais financiados por cada fomento
 #
@@ -466,10 +466,11 @@ def estatistica_ict():
   total = 0
   for cur in cursos_apar:
    total = total + cur[0]
-  print('- Os cursos com os maiores investimentos pelo ' + fomento  + ' são:')
+  print('\n- Os cursos com os maiores investimentos pelo ' + fomento  + ' são:')
   for parte in cursos_apar:
-   media = round(parte[0]/total, 4)*100
-   print('- ' + parte[1] + ': ' + str(media) + '% (' + str(parte[0]) + ' aparições)')
+   if cursos_apar.index(parte) <= 5:
+    media = round((parte[0]/total)*100, 2)
+    print('- ' + parte[1] + ': ' + str(media) + '% (' + str(parte[0]) + ' aparições)')
 #
 # áreas de pesquisa mais financiadas por cada fomento
 #
@@ -493,17 +494,18 @@ def estatistica_ict():
   total = 0
   for cur in cursos_apar:
    total = total + cur[0]
-  print('- As áreas de pesquisas mais financiadas pelo ' + fomento  + ' são:')
+  print('\n- As áreas de pesquisas mais financiadas pelo ' + fomento  + ' são:')
   for parte in cursos_apar:
-   media = round(parte[0]/total, 4)*100
-   print('- ' + parte[1] + ': ' + str(media) + '% (' + str(parte[0]) + ' aparições)')
+   if cursos_apar.index(parte) <= 5:
+    media = round((parte[0]/total)*100, 2)
+    print('- ' + parte[1] + ': ' + str(media) + '% (' + str(parte[0]) + ' aparições)')
 #
 # carga horária média
 #
  dados_selec = []
  for parte in dados:
   if len(list(dados_selec)) == 0:
-   dados_selec.append(1, parte[7])
+   dados_selec.append([1, parte[7]])
   else:
    tent = 0
    for part in dados_selec:
@@ -512,18 +514,42 @@ def estatistica_ict():
     else:
      tent = tent + 1
    if tent == len(list(dados_selec)):
-    dados_selec.append(1, parte[7])
+    dados_selec.append([1, parte[7]])
  dados_selec.sort(reverse=True)
  total = 0
  for par in dados_selec:
   total = total + par[0]
- print('- As cargas horárias mais vistas são:')
+ print('\n- As cargas horárias mais vistas são:')
  for par in dados_selec:
-  media = round(par[0]/total, 4)*100
+  media = round((par[0]/total)*100, 2)
   print('- ' + par[1] + ': ' + str(media) + '% (' + str(par[0]) + ' aparições)')
 #
 # carga horária por cada fomento
 #
+ fomentos = ['CNPq', 'UTFPR', 'Fundação Araucária']
+ for fomento in fomentos:
+  cursos_apar = []
+  for parte in dados:
+   if parte[4] == fomento:
+    if len(list(cursos_apar)) == 0:
+     cursos_apar.append([1, parte[7]])
+    else:
+     tent = 0
+     for part in cursos_apar:
+      if part[1] == parte[7]:
+       part[0] = part[0] + 1
+      else:
+       tent = tent + 1
+     if tent == len(list(cursos_apar)):
+      cursos_apar.append([1, parte[7]])
+  cursos_apar.sort(reverse=True)
+  total = 0
+  for cur in cursos_apar:
+   total = total + cur[0]
+  print('\n- As cargas horárias mais vistas em ' + fomento  + ' são:')
+  for parte in cursos_apar:
+   media = round((parte[0]/total)*100, 2)
+   print('- ' + parte[1] + ': ' + str(media) + '% (' + str(parte[0]) + ' aparições)')
 #
 # carga horária por cada curso
 #
@@ -533,6 +559,30 @@ def estatistica_ict():
 #
 # potencial da pesquisa por fomento
 #
+ fomentos = ['CNPq', 'UTFPR', 'Fundação Araucária']
+ for fomento in fomentos:
+  cursos_apar = []
+  for parte in dados:
+   if parte[4] == fomento:
+    if len(list(cursos_apar)) == 0:
+     cursos_apar.append([1, parte[9]])
+    else:
+     tent = 0
+     for part in cursos_apar:
+      if part[1] == parte[9]:
+       part[0] = part[0] + 1
+      else:
+       tent = tent + 1
+     if tent == len(list(cursos_apar)):
+      cursos_apar.append([1, parte[9]])
+  cursos_apar.sort(reverse=True)
+  total = 0
+  for cur in cursos_apar:
+   total = total + cur[0]
+  print('\n- Os potenciais de pesquisa mais vistos em ' + fomento  + ' são:')
+  for parte in cursos_apar:
+   media = round((parte[0]/total)*100, 2)
+   print('- ' + parte[1] + ': ' + str(media) + '% (' + str(parte[0]) + ' aparições)')
 #
 # potencial da pesquisa por curso
 #
@@ -545,12 +595,60 @@ def estatistica_ict():
 #
 # desempenho do estudante por fomento
 #
+ fomentos = ['CNPq', 'UTFPR', 'Fundação Araucária']
+ for fomento in fomentos:
+  cursos_apar = []
+  for parte in dados:
+   if parte[4] == fomento:
+    if len(list(cursos_apar)) == 0:
+     cursos_apar.append([1, parte[10]])
+    else:
+     tent = 0
+     for part in cursos_apar:
+      if part[1] == parte[10]:
+       part[0] = part[0] + 1
+      else:
+       tent = tent + 1
+     if tent == len(list(cursos_apar)):
+      cursos_apar.append([1, parte[10]])
+  cursos_apar.sort(reverse=True)
+  total = 0
+  for cur in cursos_apar:
+   total = total + cur[0]
+  print('\n- Os desempenhos dos alunos mais vistos em ' + fomento  + ' são:')
+  for parte in cursos_apar:
+   media = round((parte[0]/total)*100, 2)
+   print('- ' + parte[1] + ': ' + str(media) + '% (' + str(parte[0]) + ' aparições)')
 #
 # desempenho do estudante por área
 #
 #
 # perfil do estudante por fomento
 #
+ fomentos = ['CNPq', 'UTFPR', 'Fundação Araucária']
+ for fomento in fomentos:
+  cursos_apar = []
+  for parte in dados:
+   if parte[4] == fomento:
+    if len(list(cursos_apar)) == 0:
+     cursos_apar.append([1, parte[11]])
+    else:
+     tent = 0
+     for part in cursos_apar:
+      if part[1] == parte[11]:
+       part[0] = part[0] + 1
+      else:
+       tent = tent + 1
+     if tent == len(list(cursos_apar)):
+      cursos_apar.append([1, parte[11]])
+  cursos_apar.sort(reverse=True)
+  total = 0
+  for cur in cursos_apar:
+   total = total + cur[0]
+  print('\n- Os perfis de estudante PG mais vistos em ' + fomento  + ' são:')
+  for parte in cursos_apar:
+   media = round((parte[0]/total)*10, 2)
+   print('- ' + parte[1] + ': ' + str(media) + '% (' + str(parte[0]) + ' aparições)')
 #
 # perfil do estudante por curso
 #
