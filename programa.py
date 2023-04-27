@@ -7,8 +7,8 @@
 # 6) Função para estatística com dados da planilha relatório parcial ICT
 # 7) Função para coleta Lattes
 # 8) Função colocar CPF na planilha longa
+# 9) Change character
 # Menu
-# pip install selenium-recaptcha-solver
 #=============================================================================================
 #=============================================================================================
 #
@@ -27,11 +27,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 import keyboard
-#
-#=============================================================================================
-#=============================================================================================
+from selenium_recaptcha_solver import RecaptchaSolver
 #
 # 2) Definições necessárias
 #
@@ -42,6 +41,10 @@ options.add_argument('--log-level=3')
 options.add_argument('--disable-gpu')
 path_user = '--user-data-dir=C:\\Users\\' + str(user) + '\\AppData\\Local\\Google\\Chrome\\User Data'
 options.add_argument(path_user)
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+options.add_argument('--no-sandbox')
+options.add_argument("--disable-extensions")
 email_utfpr = 'philippeidalgo@alunos.utfpr.edu.br'
 senha_utfpr = 'cZG$863?&pdJ'
 user_emailpib = 'pibic'
@@ -649,22 +652,82 @@ def estatistica_ict():
 # 7) Função coletar dados de publicação no lattes
 #
 def coleta_lattes():
-  driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+  driver1 = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
   ids_pesquisadores = ['K4755167Z6']
   nome_publicacoes = []
   for id in ids_pesquisadores:
-    driver.get('http://buscatextual.cnpq.br/buscatextual/visualizacv.do?metodo=apresentar&id=' + id)
-    time.sleep(5)
+    driver1.get('http://buscatextual.cnpq.br/buscatextual/visualizacv.do?metodo=apresentar&id=' + id)
+    nome_pesq = str(driver1.getTitle()).split(' (')[1].replace(')','')
+    time.sleep(30)
     # 7.1) Verifica e realiza o reCAPTCHA
+    #try:
+    # recaptcha_driver = RecaptchaSolver(driver=driver1)
+    # recaptcha_iframe = driver1.find_element(by='xpath', value='//iframe[@title="reCAPTCHA"]')
+    # try:
+    #  recaptcha_driver.click_recaptcha_v2(iframe=recaptcha_iframe)
+    # except TimeoutException:
+    #  pass
+    # time.sleep(3)
+    # driver1.find_element(by='xpath', value='/html/body/form/div/div/div/div/div/div/div/div/div[4]/div/input').click()
+    # time.sleep(5)
+    #except NoSuchElementException:
+    # pass
     # 7.2) Coleta os dados
-    for i in range(1, 500):
-      div_name = driver.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) + ']').get_attribute("name")
-      if div_name == "Produções":
-        for j in range(1, 500):
-          div_id = driver.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']').get_attribute("id")
+    i = 1
+    found_prod = 0
+    while True:
+      try:
+       element = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) + ']/a')
+       driver1.execute_script("arguments[0].scrollIntoView(true);", element)
+       a_name = element.get_attribute("name")
+       if a_name == "ProducoesCientificas":
+        found_prod = 1
+        j = 1
+        while True:
+          div_id = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']').get_attribute("id")
           if div_id == "artigos-completos":
-            print("encontrei")
-            f = input()
+            k = 1
+            publicacoes = []
+            while True:
+             try:
+              eleme = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']')
+              driver1.execute_script("arguments[0].scrollIntoView(true);", eleme)
+              eleme_class = eleme.get_attribute('class')
+              if eleme_class == "artigo-completo":
+                publicacao = []
+                l = 1
+                while True:
+                 try:
+                  div_span = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']/div[2]/div/span[' + str(l) + ']')
+                  div_span_tipo = div_span.get_attribute('data-tipo-ordenacao')
+                  if div_span_tipo == 'ano':
+                   publicacao.append(['ano', str(div_span.get_attribute('textContent'))])
+                   break
+                 except NoSuchElementException:
+                  pass
+                 l = l + 1
+                div_cvuri = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']/div[2]/div/div').get_attribute('cvuri')
+                dados = str(div_cvuri).split('&')
+                for dado in dados:
+                 tipo = dado.split('=')
+                 try:
+                  publicacao.append([tipo[0], tipo[1]])
+                 except IndexError:
+                  pass
+                publicacoes.append(publicacao)
+             except NoSuchElementException:
+              break
+             nome_publicacoes.append([nome_pesq, publicacoes])
+             k = k + 1
+            break
+          j = j + 1
+      except NoSuchElementException:
+       pass
+      if found_prod == 1:
+       break
+      else:
+       i = i + 1
+    print(nome_publicacoes)
 #
 # 8) Função colocar CPF na planilha longa
 #
@@ -691,13 +754,13 @@ def cpf():
   driver.get('https://docs.google.com/spreadsheets/d/1HHRplGnAA-yEmsFbynb_QDufS6EfxjFb/edit#gid=95382403')
   time.sleep(8)
   for name in nomes:
-    action.key_down(Keys.CONTROL).send_keys("f").key_up(Keys.CONTROL)
+    action.key_down(Keys.CONTROL).send_keys("f").key_up(Keys.CONTROL).perform()
     time.sleep(1)
     driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[2]/div/div/div[1]/div[1]/div/div[2]/table/tbody/tr/td[1]/input').send_keys(name)
-    time.sleep(1)
+    time.sleep(2)
     index_primeiro = int(str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[2]/div/div/div[1]/div[1]/div/div[2]/table/tbody/tr/td[2]/span').text).split(' ')[0])
     if index_primeiro != 0:
-      action.send_keys(Keys.ESCAPE)
+      action.send_keys(Keys.ESCAPE).perform()
       time.sleep(1)
       cell_found = driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').get_attribute("value")
       driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
@@ -730,10 +793,34 @@ def cpf():
         driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(par[1])
         action.send_keys(Keys.ENTER).perform()
 #
+# 9) Change character
+#
+def change_char():
+ driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+ action = ActionChains(driver)
+ driver.get('https://docs.google.com/spreadsheets/d/1xLFXp4hVY8DsD5iQ2Tfdpn2AAKvoYy9Y/edit#gid=1966649337')
+ time.sleep(3)
+ dados = []
+ colunas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
+ for i in range(5, 53380):
+  for coluna in colunas:
+   cell = coluna + str(i)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   texto = driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text
+   pyautogui.moveTo(x=1752, y=198)
+   for k in range(0, 3):
+    pyautogui.click()
+   keyboard.press('backspace')
+   new_texto = texto.replace('-', ' ').replace('?', ' ').replace('&', ' ').replace('*', ' ').replace('@', ' ').replace('#', ' ').replace('$', ' ').replace('£', ' ').replace('¢', ' ').replace('!', ' ').replace('/', ' ').replace("\\", ' ').replace('§', ' ').replace('=', ' ').replace('+', ' ').replace(';', ' ').replace('ã', 'a').replace('Ã', 'A').replace('õ', 'o').replace('Õ', 'O').replace('ô', 'o').replace('Ô', 'O').replace('â', 'a').replace('Â', 'A').replace('é', 'e').replace('É', 'E').replace('á', 'a').replace('Á', 'A').replace('ó', 'o').replace('Ó', 'O').replace('à', 'a').replace('À', 'A').replace('í', 'i').replace('Í', 'I').replace('ú', 'u').replace('Ú', 'U').replace('°', ' ').replace('º', ' ').replace('®', ' ').replace('ê', 'e').replace('ç', 'c').replace('Ê', 'E').replace('Ç', 'C')
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(new_texto)
+   action.send_keys(Keys.ENTER).perform()
+#
 # Menu
 #
 def menu():
- txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF']
+ txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char']
  for text in txt:
   print(text)
  while True:
@@ -761,6 +848,10 @@ def menu():
   elif escolha == '6':
    print('- Executando: ' + txt[int(escolha)].split(') ')[1])
    cpf()
+   break
+  elif escolha == '7':
+   print('- Executando: ' + txt[int(escolha)].split(') ')[1])
+   change_char()
    break
   else:
    print('Tente novamente! Número inválido')
