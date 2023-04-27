@@ -6,7 +6,9 @@
 // o JavaScript para que ele fosse utilizado como programa padrão no desenvolvimento web. Seu nome alterou-se para ECMAScript, porém, devido ao sucesso que ele
 // já tinha, continuou o nome usual.
 
-// Hoisting e Use strict
+// como uma linguagem humana, o seu desenvolvimento se dá pelo aumento da praticidade
+
+// Hoisting e Use strict (sujeito oculto & linguagem formal)
 function teste11(){
     console.log('oi');
 }
@@ -64,3 +66,154 @@ function teste4(x){
         console.log(element);
     }
 }
+
+// Uma linguagem pode chegar ao fim?
+// LiveScript VS JavaScript
+function LS(){
+//    table1 =
+//  * id: 1
+//    name: 'george'
+//  * id: 2
+//    name: 'mike'
+//  * id: 3
+//    name: 'donald'
+//    table2 =
+// * id: 2
+//    age: 21
+//  * id: 1
+//    age: 20
+//  * id: 3
+//   age: 26
+//    up-case-name = (.name .= to-upper-case!)
+//    [{id:id1, name, age} for {id:id1, name} in table1
+//                     for {id:id2, age} in table2
+//                     when id1 is id2]
+//    sort-by (.id)
+//    map (.age), table2 |> fold1 (+)
+}
+function JS(){
+    var table1, table2, upCaseName, id1, name, id2, age;
+    table1 = [
+        {
+            id: 1,
+            name: 'george'
+        }, {
+            id: 2,
+            name: 'mike'
+        }, {
+            id: 3,
+            name: 'donald'
+        }
+    ];
+    table2 = [
+        {
+            id: 2,
+            age: 21
+        }, {
+            id: 1,
+            age: 20
+        }, {
+            id: 3,
+            age: 26
+        }
+    ];
+    upCaseName = function(it){
+        return it.name = it.name.toUpperCase();
+    };
+    JSON.stringify(
+        each(upCaseName)(
+            sortBy(function(it){
+                return it.id;
+            })(
+            (function(){
+                var i$, ref$, len$, ref1$, j$, len1$, ref2$, results$ = [];
+                for (i$ = 0, len$ = (ref$ = table1).length; i$ < len$; ++i$) {
+                    ref1$ = ref$[i$], id1 = ref1$.id, name = ref1$.name;
+                    for (j$ = 0, len1$ = (ref1$ = table2).length; j$ < len1$; ++j$) {
+                        ref2$ = ref1$[j$], id2 = ref2$.id, age = ref2$.age;
+                        if (id1 === id2) {
+                            results$.push({
+                                id: id1,        
+                                name: name,    
+                                age: age      
+                            });
+                        }   
+                    }
+                }
+                return results$;
+            }()))));
+            fold1(curry$(function(x$, y$){
+                return x$ + y$;
+            }))(
+                map(function(it){
+                    return it.age;
+                }, table2));
+                function curry$(f, bound){
+                    var context,
+                    _curry = function(args) {
+                        return f.length > 1 ? function(){
+                            var params = args ? args.concat() : [];
+                            context = bound ? context || this : this;
+                            return params.push.apply(params, arguments) <
+                            f.length && arguments.length ?
+                            _curry.call(context, params) : f.apply(context, params);
+                        } : f;
+                    };
+                    return _curry();
+                }
+}
+
+// CoffeeScript VS JavaScript
+function CS(){
+//    number   = 42
+//    opposite = true
+//    number = -42 
+//    if opposite
+//   square = (x) -> x * x
+//    list = [1, 2, 3, 4, 5]
+//    math =
+//    root:   Math.sqrt
+//    square: square
+//    cube:   (x) -> x * square x
+//    race = (winner, runners...) ->
+//    print winner, runners
+//    alert "I knew it!" if elvis?
+//    cubes = (math.cube num for num in list)
+}
+function JSCS(){
+    var cubes, list, math, num, number, opposite, race, square;
+    number = 42;
+    opposite = true;
+    if (opposite) {
+        number = -42;
+    }
+    square = function(x) {
+        return x * x;
+    };
+    list = [1, 2, 3, 4, 5];
+    math = {
+        root: Math.sqrt,
+        square: square,
+        cube: function(x) {
+            return x * square(x);
+        }
+    };
+    race = function(winner, ...runners) {
+        return print(winner, runners);
+    };
+    if (typeof elvis !== "undefined" && elvis !== null) {
+        alert("I knew it!");
+    }
+    cubes = (function() {
+        var i, len, results;
+        results = [];
+        for (i = 0, len = list.length; i < len; i++) {
+            num = list[i];
+            results.push(math.cube(num));
+        }
+        return results;
+    })();
+}
+
+// Python and JavaScript
+// https://livingwithcode.com/can-python-replace-javascript/#:~:text=Your%20browser's%20rendering%20engine%20needs,other%20programming%20languages%20including%20Python.
