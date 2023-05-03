@@ -15,7 +15,6 @@
 # 1) Importações
 #
 import time
-from openpyxl import load_workbook
 import pyautogui
 from datetime import datetime
 from datetime import timedelta
@@ -27,7 +26,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
 import keyboard
 from selenium_recaptcha_solver import RecaptchaSolver
@@ -256,38 +254,8 @@ def email_ict():
     except ValueError:
      emails_totais.append(email)
  print('- Total de emails na planilha: ' + str(len(list(emails_totais))))
- # No forms, rodar todos os emails e concluir quais ainda não enviaram
- emails_dos_completos = []
- driver.get('https://docs.google.com/forms/d/1FenyGiVb-i9v_u91q74p_m5oT8YxIp2Ajh0OCo6bBHg/edit#response=ACYDBNgBftlzjD0Y_lTpniPTwGWHhZnY4Cl1WfobplNtNbxlHTUhW83EprHMi3BAnT0ycf8')
- time.sleep(5)
- for j in range(1, 740):
-  try:
-   driver.find_element(by='xpath', value='/html/body/div[3]/div[2]/div[2]/div/div[4]/div/div[1]/div[1]/div[2]/div[2]/div/div[1]/div/div[1]/div/div[1]/input').clear()
-   driver.find_element(by='xpath', value='/html/body/div[3]/div[2]/div[2]/div/div[4]/div/div[1]/div[1]/div[2]/div[2]/div/div[1]/div/div[1]/div/div[1]/input').send_keys(str(j))
-   driver.find_element(by='xpath', value='/html/body/div[3]/div[2]/div[2]/div/div[4]/div/div[1]/div[1]/div[2]/div[2]/div/div[1]/div/div[1]/div/div[1]/input').send_keys(Keys.ENTER)
-   time.sleep(2)
-   xpath_email = '/html/body/div[3]/div[2]/div[2]/div/div[4]/div/div[1]/div[1]/div[1]/div/div[1]/div[1]/div[' + str(j) + ']/span'
-   email = str(driver.find_element(by='xpath', value=xpath_email).text).split(' (')[0]
-   if email != '':
-    if len(list(emails_dos_completos)) == 0:
-     emails_dos_completos.append(email)
-    else:
-     try:
-      emails_dos_completos.index(email)
-     except ValueError:
-      emails_dos_completos.append(email)
-  except NoSuchElementException:
-   pass
- print('- Total de emails no formulário: ' + str(len(list(emails_dos_completos))))
- print('- O número esperado de emails a serem enviados é: ' + str(len(list(emails_totais)) - len(list(emails_dos_completos))))
  # Escrever um email sobre
- email_a_serem_enviados = []
- for email in emails_totais:
-  try:
-   emails_dos_completos.index(email)
-  except ValueError:
-   email_a_serem_enviados.append(email)
- print('- Total de emails a serem enviados: ' + str(len(list(email_a_serem_enviados))))
+ email_a_serem_enviados = emails_totais
  driver.get('https://webmail.utfpr.edu.br/')
  time.sleep(3)
  driver.find_element(by='xpath', value='/html/body/div[2]/div[1]/form/table/tbody/tr[1]/td[2]/input').send_keys(user_emailpib)
@@ -306,26 +274,20 @@ def email_ict():
      keyboard.write(email_a_serem_enviados[ind])
    except IndexError:
     pass
-  action.send_keys(Keys.TAB)
-  keyboard.write('Aviso DEICT: Prazo para responder o Relatório Parcial da Iniciação Científica e Tecnológica')
-  action.send_keys(Keys.TAB)
-  keyboard.write('Prezados Orientadores,')
-  action.send_keys(Keys.ENTER)
-  keyboard.write('O prazo para responder o Relatório Parcial referente a atuação dos estundantes do Programa de Iniciação Científica e Tecnológica encerra amanhã, dia 14 de abril/2023.')
-  action.send_keys(Keys.ENTER)
-  keyboard.write('Lembramos, que a sua resposta para esse relatório tem o intuito de acompanhar o (a) estudante, bem como observar o cumprimento do plano de trabalho. A UTFPR atende a RN 17/2006 - CNPq.')
-  action.send_keys(Keys.ENTER)
-  keyboard.write('Solicitamos que o formulário do Relatório Parcial seja respondido para cada estudante orientado.')
-  action.send_keys(Keys.ENTER)
-  keyboard.write('O formulário do relatório parcial está disponível no link abaixo:')
-  action.send_keys(Keys.ENTER)
-  keyboard.write('https://docs.google.com/forms/d/e/1FAIpQLSdzNk1RZTsIF-e5ehJ2uMrQmx7FQqIdb1MpYBbsfwQCdKWpiQ/viewform?usp=sharing')
-  action.send_keys(Keys.ENTER)
-  keyboard.write('DATA LIMITE: 14 DE ABRIL')
-  action.send_keys(Keys.ENTER)
-  keyboard.write('Ficamos à disposição')
-  action.send_keys(Keys.ENTER)
-  input('Próximo?')
+  action.send_keys(Keys.TAB).perform()
+  keyboard.write('INFORMATIVO DEICT - Data limite para substituição de bolsistas - Ciclo 2022-2023')
+  action.send_keys(Keys.TAB).perform()
+  keyboard.write('Prezados(as) Pesquisadores, ')
+  action.send_keys(Keys.ENTER).perform()
+  keyboard.write('Informamos que o prazo limite para solicitar  substituição de BOLSISTAS do Ciclo 2022-2023 é:')
+  action.send_keys(Keys.ENTER).perform()
+  keyboard.write('Data limite: 05/maio/23')
+  action.send_keys(Keys.ENTER).perform()
+  keyboard.write('As agências de fomento entendem que os três ùltimos meses são destinados a conclusão das atividades previstas no Plano de Trabalho, além de preparar o Relatório Final e apresentação do SICITE 2023.')
+  action.send_keys(Keys.ENTER).perform()
+  keyboard.write('Ficamos à disposição.')
+  input('Próximo? Ao final, clique no campo dos destinatários')
+  time.sleep(5)  
 #
 # 6) Função para estatística com dados da planilha relatório parcial ICT
 #
@@ -653,12 +615,11 @@ def estatistica_ict():
 #
 def coleta_lattes():
   driver1 = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
-  ids_pesquisadores = ['K4755167Z6']
+  ids_pesquisadores = ['K4755167Z6', 'K4700334D5']
   nome_publicacoes = []
   for id in ids_pesquisadores:
     driver1.get('http://buscatextual.cnpq.br/buscatextual/visualizacv.do?metodo=apresentar&id=' + id)
-    nome_pesq = str(driver1.getTitle()).split(' (')[1].replace(')','')
-    time.sleep(30)
+    input("- posso?")
     # 7.1) Verifica e realiza o reCAPTCHA
     #try:
     # recaptcha_driver = RecaptchaSolver(driver=driver1)
@@ -675,6 +636,7 @@ def coleta_lattes():
     # 7.2) Coleta os dados
     i = 1
     found_prod = 0
+    nome_pesq = str(driver1.title).split(' (')[1].replace(')','')
     while True:
       try:
        element = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) + ']/a')
@@ -727,7 +689,8 @@ def coleta_lattes():
        break
       else:
        i = i + 1
-    print(nome_publicacoes)
+  for a in nome_publicacoes:
+   print(a)
 #
 # 8) Função colocar CPF na planilha longa
 #
