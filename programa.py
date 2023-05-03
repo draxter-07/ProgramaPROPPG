@@ -28,7 +28,6 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 import keyboard
-from selenium_recaptcha_solver import RecaptchaSolver
 #
 # 2) Definições necessárias
 #
@@ -780,10 +779,146 @@ def change_char():
    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(new_texto)
    action.send_keys(Keys.ENTER).perform()
 #
+# Programa catai
+#
+def catai():
+  driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+  driver.maximize_window()
+  action = ActionChains(driver)
+  input("- Logue com sua conta google, depois aperte aqui ok")
+  # pega os nomes da 3k
+  nomes = []
+  driver.get('https://docs.google.com/spreadsheets/d/1A7ToqN63RpSI4kH7mOpXkmvnJSnEdqDt/edit#gid=190066373')
+  time.sleep(5)
+  for a in range(3, 338):
+    cell_name = 'A' + str(a)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    nomes.append(name)
+  # pega os dados da bruta
+  nomes_dados = []
+  driver.get('https://docs.google.com/spreadsheets/d/1eKFfzhypr8gh0IlKDfrYgpTtg7r5mGiX/edit#gid=1966649337')
+  time.sleep(5)
+  for b in range(5, 53380):
+    cell_name = 'B' + str(b)
+    cell_tipo_agrupador = 'F' + str(b)
+    cell_tipo_producao = 'G' + str(b)
+    cell_snip = 'P' + str(b)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_tipo_agrupador)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    tipo_agrupador = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_tipo_producao)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    tipo_producao = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_snip)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    snip = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    nomes_dados.append([name, tipo_agrupador, tipo_producao, snip])  
+  # filtro de pontuação
+  nomes_pontos = []
+  for parte in nomes_dados:
+    pontos = 0
+    if parte[1] == 'Producao bibliografica' and parte[2] == 'Artigo publicado em periodicos':
+      try:
+        if float(parte[3]) >= 1.501:
+          pontos = 100
+        elif float(parte[3]) <= 1.500 and float(parte[3]) >= 1.001:
+          pontos = 75
+        elif float(parte[3]) <= 1.000 and float(parte[3]) >= 0.501:
+          pontos = 50
+        elif float(parte[3]) <= 0.500 and float(parte[3]) >= 0.001:
+          pontos = 25
+        else:
+          pontos = 0
+      except ValueError:
+        pass
+    elif parte[1] == 'Orientacao concluida' and parte[2] == 'Dissertacao de mestrado':
+      pontos = 5
+    elif parte[1] == 'Orientacao concluida' and parte[2] == 'Iniciacao Cientifica':
+      pontos = 2.5
+    elif parte[1] == 'Orientacao concluida' and parte[2] == 'Tese de doutorado':
+      pontos = 10
+    elif parte[1] == 'Producao tecnica' and parte[2] == 'Programa de computador':
+      pontos = 50
+    elif parte[1] == 'Producao tecnica' and parte[2] == 'Patentes e registros':
+      pontos = 150
+    if pontos != 0:
+      found = 0
+      for partezinha in nomes_pontos:
+        if partezinha[0] == parte[0]:
+          found = 1
+          partezinha[1] = partezinha[1] + pontos
+      if found == 0:
+        nomes_pontos.append([parte[0], pontos])
+  # escreve os pontos na 3k
+  driver.get('https://docs.google.com/spreadsheets/d/1A7ToqN63RpSI4kH7mOpXkmvnJSnEdqDt/edit#gid=190066373')
+  time.sleep(5)
+  for c in range(3, 338):
+    cell_name = 'A' + str(c)
+    cell_pont = 'M' + str(c)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    for nomes in nomes_pontos:
+      if nomes[0] == name:
+        driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+        driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_pont)
+        driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+        driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(str(nomes[1]).replace('.' ','))
+        action.send_keys(Keys.ENTER).perform()
+  time.sleep(5)
+#
+# exclui linha de planilha
+#
+def exclui_linha():
+  driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+  driver.maximize_window()
+  action = ActionChains(driver)
+  input("- Logue com sua conta google, depois aperte aqui ok")
+  # pega os nomes da 3k
+  nomes = []
+  driver.get('https://docs.google.com/spreadsheets/d/1A7ToqN63RpSI4kH7mOpXkmvnJSnEdqDt/edit#gid=190066373')
+  time.sleep(5)
+  for a in range(3, 338):
+    cell_name = 'A' + str(a)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    nomes.append(name)
+  # compara com os da bruta
+  driver.get('https://docs.google.com/spreadsheets/d/1eKFfzhypr8gh0IlKDfrYgpTtg7r5mGiX/edit#gid=1966649337')
+  time.sleep(5)
+  b = 3
+  while b < 53380:
+    cell_name = 'B' + str(b)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    try:
+     nomes.index(name)
+     b = b + 1
+    except ValueError:
+     action.key_down(Keys.ALT).send_keys('E').key_up(Keys.ALT).perform()
+     action.send_keys('D').perform()
+     action.send_keys('D').perform()
+  time.sleep(5)
+#
 # Menu
 #
 def menu():
- txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char']
+ txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas']
  for text in txt:
   print(text)
  while True:
@@ -815,6 +950,14 @@ def menu():
   elif escolha == '7':
    print('- Executando: ' + txt[int(escolha)].split(') ')[1])
    change_char()
+   break
+  elif escolha == '8':
+   print('- Executando: ' + txt[int(escolha)].split(') ')[1])
+   catai()
+   break
+  elif escolha == '9':
+   print('- Executando: ' + txt[int(escolha)].split(') ')[1])
+   exclui_linha()
    break
   else:
    print('Tente novamente! Número inválido')
