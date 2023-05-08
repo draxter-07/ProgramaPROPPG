@@ -8,6 +8,9 @@
 # 7) Função para coleta Lattes
 # 8) Função colocar CPF na planilha longa
 # 9) Change character
+# 10) Programa catai
+# 11) exclui linha de planilha
+# 12) Planilha Ju
 # Menu
 #=============================================================================================
 #=============================================================================================
@@ -779,7 +782,7 @@ def change_char():
    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(new_texto)
    action.send_keys(Keys.ENTER).perform()
 #
-# Programa catai
+# 10) Programa catai
 #
 def catai():
   driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
@@ -874,11 +877,11 @@ def catai():
         driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
         driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_pont)
         driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
-        driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(str(nomes[1]).replace('.' ','))
+        driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(str(nomes[1]).replace('.', ','))
         action.send_keys(Keys.ENTER).perform()
   time.sleep(5)
 #
-# exclui linha de planilha
+# 11) exclui linha de planilha
 #
 def exclui_linha():
   driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
@@ -915,10 +918,97 @@ def exclui_linha():
      action.send_keys('D').perform()
   time.sleep(5)
 #
+# 12) Programa Ju
+#
+def ju():
+ driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+ driver.maximize_window()
+ action = ActionChains(driver)
+ dados = []
+ driver.get('https://docs.google.com/spreadsheets/d/1Xu_tOTT16isAvKHzF-4iPcKiX0Weg9T-/edit#gid=450512029')
+ input('Deixe a planilha no jeito certo')
+ time.sleep(5)
+ a = 2
+ b = True
+ while b:
+  cell_campus = 'A' + str(a)
+  cell_proposta = 'B' + str(a)
+  cell_orient_name = 'G' + str(a)
+  cell_orient_email = 'H' + str(a)
+  cell_est_name = 'K' + str(a)
+  cell_est_curso = 'M' + str(a)
+  cell_est_situacao_14022023 = 'N' + str(a)
+  cell_est_banco = 'S' + str(a)
+  cell_est_agencia = 'T' + str(a)
+  cell_est_dv = 'U' + str(a)
+  cell_est_conta = 'V' + str(a)
+  cell_est_oper = 'W' + str(a)
+  cell_modalidade = 'X' + str(a)
+  cell_fomento = 'Z' + str(a)
+  cell_observacao = 'AA' + str(a)
+  cell_inicio_proj = 'AC' + str(a)
+  cell_final_proj = 'AD' + str(a)
+  idas = [cell_campus, cell_proposta, cell_orient_name, cell_orient_email, cell_est_name, cell_est_curso, cell_est_situacao_14022023, cell_est_banco, cell_est_agencia, cell_est_dv, cell_est_conta, cell_est_oper, cell_modalidade, cell_fomento, cell_observacao, cell_inicio_proj, cell_final_proj]
+  datas = []
+  for cell in idas:
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell)
+    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+    data = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+    cor_cell = driver.find_element(by='xpath', value='/html/body/div[2]/div[4]/div[2]/div[1]/div[2]/div[26]/div/div/div/div').get_attribute('style').split('border-bottom-color: rgb(')[1].split(');')[0]
+    cor_r = cor_cell.split(', ')[0]
+    cor_g = cor_cell.split(', ')[1]
+    cor_b = cor_cell.split(', ')[2]
+    if cell == cell_est_name and data != "":
+     datas.append(data)
+    elif cell == cell_est_name and data == "":
+      b = False
+  if b != False:
+   dados.append(datas)
+   a = a + 1
+ utfpr = []
+ arauc = []
+ cnpq = []
+ month = datetime.now().strftime("%m")
+ year = datetime.now().strftime("%Y")
+ day = datetime.now().strftime ("%d")
+ for parte in dados:
+  campus = parte[0]
+  proposta = parte[1]
+  orient_name = parte[2]
+  orient_email = parte[3]
+  est_name = parte[4]
+  est_curso = parte[5]
+  est_situacao_14022023 = parte[6]
+  est_banco = parte[7]
+  est_agencia = parte[8]
+  est_dv = parte[9]
+  est_conta = parte[10]
+  est_oper = parte[11]
+  modalidade = parte[12]
+  fomento = parte[13]
+  observacao = parte[14]
+  inicio_proj = parte[15]
+  final_proj = parte[16]
+  if final_proj == "" or final_proj.split('/')[2] < year or (final_proj.split('/')[2] == year and final_proj.split('/')[1] < month) or (final_proj.split('/')[2] == year and final_proj.split('/')[1] == month and final_proj.split('/')[0] < day):
+   d = [fomento, est_name, modalidade]
+   if fomento == 'UTFPR':
+    utfpr.append(d)
+   elif fomento == 'CNPq':
+    cnpq.append(d)
+   elif fomento == 'Fund Arauc':
+    arauc.append(d)
+ fomentos = [utfpr, arauc, cnpq]
+ for fom in fomentos:
+   if len(fom) > 0:
+    print('----- ' + fom[0][0] + '-----')
+    for parte in fom:
+     print(' - ' + parte[1] + ': ' + parte[2])
+#
 # Menu
 #
 def menu():
- txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas']
+ txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas', '10) Ju']
  for text in txt:
   print(text)
  while True:
@@ -958,6 +1048,10 @@ def menu():
   elif escolha == '9':
    print('- Executando: ' + txt[int(escolha)].split(') ')[1])
    exclui_linha()
+   break
+  elif escolha == '10':
+   print('- Executando: ' + txt[int(escolha)].split(') ')[1])
+   ju()
    break
   else:
    print('Tente novamente! Número inválido')
