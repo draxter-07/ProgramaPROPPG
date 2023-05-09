@@ -11,6 +11,7 @@
 # 10) Programa catai
 # 11) exclui linha de planilha
 # 12) Planilha Ju
+# 13) Pegar txt
 # Menu
 #=============================================================================================
 #=============================================================================================
@@ -1005,10 +1006,56 @@ def ju():
     for parte in fom:
      print(' - ' + parte[1] + ': ' + parte[2])
 #
+# 13) Pegar .txt
+#
+def jutxt():
+ pares = []
+ par = []
+ fil = open("C:/Users/DIREPQ/Desktop/cnpq.txt", 'r')
+ conj = fil.readlines()
+ for line in conj:
+  try:
+   sect = line.split('title="')[1]
+   name = sect.split('"')[0]
+   if name != 'Bolsa ativa' and name != 'Encerrada por cancelamento' and name != 'Declinado pelo BeneficiÃ¡rio' and name != 'Aguardando registro de termo de aceite' and len(name) != 0:
+    name = name.replace('Ã§', 'ç').replace('Ã', 'í').replace('í©', 'é').replace('íª', 'ê').replace('í£', 'ã').replace('í¡', 'á').replace('í³', 'ó').replace('í´', 'ô').replace('íº', 'ú').replace('í¢', 'â')
+    name = name.replace('ç', 'c').replace('í', 'i').replace('é', 'e').replace('ê', 'e').replace('ã', 'a').replace('á', 'a').replace('ó', 'o').replace('ô', 'o').replace('ú', 'u').replace('â', 'a')
+    if len(par) == 0:
+     par.append(name)
+    elif len(par) == 1:
+     par.append(name)
+     try:
+      pares.index(par)
+     except ValueError:
+      pares.append(par)
+     par = []
+  except IndexError:
+   pass
+ fil.close()
+ driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+ action = ActionChains(driver)
+ driver.get('https://docs.google.com/spreadsheets/d/1G7WjcECkriqHKIm3JiSkZzg54B2IjxOiMqiCUBeMYqI/edit#gid=0')
+ time.sleep(3)
+ for par in pares:
+   i = pares.index(par) + 2
+   cella = 'A' + str(i)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cella)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(par[0])
+   action.send_keys(Keys.ENTER).perform()
+   cellb = 'B' + str(i)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cellb)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(par[1])
+   action.send_keys(Keys.ENTER).perform()
+ time.sleep(10)
+#
 # Menu
 #
 def menu():
- txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas', '10) Ju']
+ txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas', '10) Ju', '11) Ju txt']
  for text in txt:
   print(text)
  while True:
@@ -1052,6 +1099,10 @@ def menu():
   elif escolha == '10':
    print('- Executando: ' + txt[int(escolha)].split(') ')[1])
    ju()
+   break
+  elif escolha == '11':
+   print('- Executando: ' + txt[int(escolha)].split(') ')[1])
+   jutxt()
    break
   else:
    print('Tente novamente! Número inválido')
