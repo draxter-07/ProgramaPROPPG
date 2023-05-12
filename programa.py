@@ -1010,31 +1010,86 @@ def ju():
 #
 def jutxt():
  pares = []
- par = []
+ tr_lines = []
+ trf_lines = []
  fil = open("C:/Users/DIREPQ/Desktop/cnpq.txt", 'r')
- conj = fil.readlines()
- for line in conj:
+ conj = fil.read()
+ # Divisão dos <tr e </tr
+ for i in range(0, len(conj) - 2):
   try:
-   sect = line.split('title="')[1]
-   name = sect.split('"')[0]
-   if name != 'Bolsa ativa' and name != 'Encerrada por cancelamento' and name != 'Declinado pelo BeneficiÃ¡rio' and name != 'Aguardando registro de termo de aceite' and len(name) != 0:
-    name = name.replace('Ã§', 'ç').replace('Ã', 'í').replace('í©', 'é').replace('íª', 'ê').replace('í£', 'ã').replace('í¡', 'á').replace('í³', 'ó').replace('í´', 'ô').replace('íº', 'ú').replace('í¢', 'â')
-    name = name.replace('ç', 'c').replace('í', 'i').replace('é', 'e').replace('ê', 'e').replace('ã', 'a').replace('á', 'a').replace('ó', 'o').replace('ô', 'o').replace('ú', 'u').replace('â', 'a')
-    if len(par) == 0:
-     par.append(name)
-    elif len(par) == 1:
-     par.append(name)
-     try:
-      pares.index(par)
-     except ValueError:
-      pares.append(par)
-     par = []
+    if str(conj[i] + conj[i + 1] + conj[i + 2]) == '<tr':
+     tr_lines.append(i)
+    elif str(conj[i] + conj[i + 1] + conj[i + 2] + conj[i + 3]) == '</tr':
+     trf_lines.append(i)
   except IndexError:
    pass
+ # Trabalha no espaçõ entre o <tr e </tr
+ for a in range(0, len(tr_lines)):
+  comeco_line = tr_lines[a]
+  fim_line = trf_lines[a]
+  dados = []
+  # Analisa o intervalo
+  for b in range(comeco_line, fim_line + 1):
+   try:
+    if str(conj[b] + conj[b + 1] + conj[b + 2] + conj[b + 3] + conj[b + 4]) == 'title':
+     # Pega o nome se encontrou Title
+     comeco_nome = 0
+     fim_nome = 0
+     nome = ""
+     for c in range(b, fim_line):
+      if comeco_nome == 0:
+       if conj[c] == '"':
+        comeco_nome = c + 1
+      elif comeco_nome != 0 and fim_nome == 0:
+       if conj[c] == '"':
+        fim_nome = c
+        break
+     for d in range(comeco_nome, fim_nome):
+      nome = nome + conj[d]
+     nome = nome.replace('Ã§', 'ç').replace('Ã£', 'ã').replace('Ã¡', 'á').replace('Ã', 'í').replace('í©', 'é').replace('í¡', 'á').replace('í£', 'ã').replace('í´', 'ô').replace('íª', 'ê').replace('í³', 'ó').replace('í¢', 'â').replace('íº', 'ú')
+     nome = nome.replace('ç', 'c').replace('í', 'i').replace('é', 'e').replace('á', 'a').replace('ã', 'a').replace('ô', 'o').replace('ê', 'e').replace('ó', 'o').replace('â', 'a').replace('ú', 'u')
+     dados.append(nome)
+   except IndexError:
+    pass
+  if len(dados) == 3:
+   try:
+    pares.index(dados)
+   except ValueError:
+    pares.append(dados)
+  else:
+   # Pegar o nome na segunda <td
+   found = 0
+   for b in range(comeco_line, fim_line + 1):
+    try:
+     if str(conj[b] + conj[b + 1] + conj[b + 2]) == '<td':
+      found = found + 1
+      if found == 2:
+       comeco_linetd = b
+       for c in range(b, fim_line):
+         if str(conj[c] + conj[c + 1] + conj[c + 2] + conj[c + 3]) == '</td':
+          fim_linetd = c
+       comeconome = 0
+       fimnome = 0
+       for d in range(comeco_linetd + 2, fim_linetd):
+        if conj[d] == '>' and comeconome == 0:
+         comeconome = d
+        elif conj[d] == '<' and fimnome == 0:
+         fimnome = d
+       name = ""
+       for e in range(comeconome + 1, fimnome):
+        name = name + conj[e]
+       dado2 = dados[1]
+       name = name.replace('Ã§', 'ç').replace('Ã£', 'ã').replace('Ã¡', 'á').replace('Ã', 'í').replace('í©', 'é').replace('í¡', 'á').replace('í£', 'ã').replace('í´', 'ô').replace('íª', 'ê').replace('í³', 'ó').replace('í¢', 'â').replace('íº', 'ú')
+       name = name.replace('ç', 'c').replace('í', 'i').replace('é', 'e').replace('á', 'a').replace('ã', 'a').replace('ô', 'o').replace('ê', 'e').replace('ó', 'o').replace('â', 'a').replace('ú', 'u')
+       dados[1] = name
+       dados.append(dado2)
+       pares.append(dados)
+    except IndexError:
+     pass
  fil.close()
  driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
  action = ActionChains(driver)
- driver.get('https://docs.google.com/spreadsheets/d/1G7WjcECkriqHKIm3JiSkZzg54B2IjxOiMqiCUBeMYqI/edit#gid=0')
+ driver.get('https://docs.google.com/spreadsheets/d/1pgL7Ji_jwQSehd8QonbSLb1O8tNEvjClOE4N2lORaYI/edit#gid=0')
  time.sleep(3)
  for par in pares:
    i = pares.index(par) + 2
@@ -1049,6 +1104,12 @@ def jutxt():
    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cellb)
    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
    driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(par[1])
+   action.send_keys(Keys.ENTER).perform()
+   cella = 'C' + str(i)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cella)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').send_keys(par[2])
    action.send_keys(Keys.ENTER).perform()
  time.sleep(10)
 #
