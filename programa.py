@@ -1113,10 +1113,98 @@ def jutxt():
    action.send_keys(Keys.ENTER).perform()
  time.sleep(10)
 #
+# Exclui repetidos
+#
+def sascha():
+ driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+ driver.maximize_window()
+ action = ActionChains(driver)
+ input("- Logue com sua conta google, depois aperte aqui ok")
+ # pega os nomes da 3k
+ driver.get('https://docs.google.com/spreadsheets/d/1A7ToqN63RpSI4kH7mOpXkmvnJSnEdqDt/edit#gid=190066373')
+ time.sleep(5)
+ dados = []
+ for a in range(2, 772):
+   cell_name = 'G' + str(a)
+   cell_data = 'I' + str(a)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_data)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   data = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+   if len(dados) == 0:
+    dados.append([name, data])
+   elif len(dados) == 1:
+    if dados[0][0] == name:
+     dados.append([name, data])
+    else: # dados[0][0] != name
+     dados.clear()
+     dados.append([name, data])
+   else: #len(dados) > 1
+    if dados[0][0] == name:
+     dados.append([name, data])
+    else: #dados[0][0] != name ====> foram encontradas inscrições iguais, logo deve ser feito o filtro
+     imd = 0
+     for inscricao in dados:
+      # Conclui qual é a data mais recente
+      data_dmy = inscricao[1].split(' ')[0]
+      data_hour = inscricao[1].split(' ')[1]
+      if dados.index(inscricao) != 0:
+       data_day_atual = data_dmy.split('-')[0]
+#
+# Ver dados e compara
+#
+def dado():
+ driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+ driver.maximize_window()
+ action = ActionChains(driver)
+ input("- Logue com sua conta google, depois aperte aqui ok")
+ edital_nome = []
+ # pega os nomes da gerencal
+ driver.get('https://docs.google.com/spreadsheets/d/1Opu9K2iLakkqjnQd0HyWH7rFFnwg8bkq/edit#gid=1096389799')
+ time.sleep(5)
+ for a in range(3, 834):
+   cell_edital = 'A' + str(a)
+   cell_name = 'C' + str(a)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_edital)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   edital = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+   try:
+    edital_nome.index([name, edital])
+   except ValueError:
+    edital_nome.append([name, edital])
+ driver.get('https://docs.google.com/spreadsheets/d/1NljayKgh5lSxgo2HzDD_MSqAvJFXHXMr/edit#gid=1164543333')
+ time.sleep(5)
+ for a in range(2, 772):
+   cell_edital = 'B' + str(a)
+   cell_name = 'G' + str(a)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_edital)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   edital = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text).split(" ")[0]
+   if edital == 'PIBIC-EM':
+    edital = 'PIBIC EM'
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text)
+   try:
+    edital_nome.index([name, edital])
+   except ValueError:
+    print(' - ' + name + ' não está na planilha "Lista Gerencial ICT 2023 24" na modalidade ' + edital)
+#
 # Menu
 #
 def menu():
- txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas', '10) Ju', '11) Ju txt']
+ txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas', '10) Ju', '11) Ju txt', '12) dado']
  for text in txt:
   print(text)
  while True:
@@ -1164,6 +1252,10 @@ def menu():
   elif escolha == '11':
    print('- Executando: ' + txt[int(escolha)].split(') ')[1])
    jutxt()
+   break
+  elif escolha == '12':
+   print('- Executando: ' + txt[int(escolha)].split(') ')[1])
+   dado()
    break
   else:
    print('Tente novamente! Número inválido')
