@@ -1201,10 +1201,86 @@ def dado():
    except ValueError:
     print(' - ' + name + ' não está na planilha "Lista Gerencial ICT 2023 24" na modalidade ' + edital)
 #
+# Dados catai
+#
+def dado_catai():
+ driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
+ driver.maximize_window()
+ action = ActionChains(driver)
+ nome_campus = []
+ # pega os nomes da gerencal
+ driver.get('https://docs.google.com/spreadsheets/d/1-VnRwvHD_8B5V6vswSvgV2UzTgGv11na/edit#gid=315836080')
+ time.sleep(5)
+ for a in range(3, 203):
+   cell_name = 'B' + str(a)
+   cell_campus = 'C' + str(a)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text).upper()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_campus)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   campus = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text).upper()
+   try:
+    nome_campus.index([name, campus])
+   except ValueError:
+    nome_campus.append([name, campus])
+ # Pega da outra planilha
+ driver.get('https://docs.google.com/spreadsheets/d/1Ek7vKjogBIeLED33g-na_DfHbq81yDh6/edit#gid=1793723543')
+ time.sleep(5)
+ for a in range(3, 47):
+   cell_name = 'B' + str(a)
+   cell_campus = 'C' + str(a)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text).upper()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_campus)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   campus = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text).upper()
+   try:
+    nome_campus.index([name, campus])
+   except ValueError:
+    nome_campus.append([name, campus])
+ # compara
+ campara = []
+ driver.get('https://docs.google.com/spreadsheets/d/15PPzydMN-2Gv9T5ajlzGAiml9JkHMnCZ/edit#gid=2105366550')
+ time.sleep(5)
+ for a in range(11, 2567):
+   cell_name = 'B' + str(a)
+   cell_porra = 'I' + str(a)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_name)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   name = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text).upper()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell_porra)
+   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+   campus1 = str(driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text).replace(' ', '')
+   try:
+    campus = str(campus1[len(campus1) - 2] + campus1[len(campus1) - 1]).upper()
+    try:
+     campara.index([name, campus])
+    except ValueError:
+     campara.append([name, campus])
+   except IndexError:
+    pass
+ for parte in nome_campus:
+  found = 0
+  for parte2 in campara:
+   if parte[0] == parte2[0]:
+    found = 1
+    if parte[1] != parte2[1]:
+     print('- ' + parte[0] + ': encontrado no campus ' + parte[1] + ', porém é do campus ' + parte2[1])
+  if found == 0:
+   print('- ' + parte[0] + ': encontrado no campus ' + parte[1] + ', porém não foram encontrados dados para confirmação')
+#
 # Menu
 #
 def menu():
- txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas', '10) Ju', '11) Ju txt', '12) dado']
+ txt = ['Olá :)\n', '1) Email Sub FA', '2) Prof planilha', '3) Email ICT', '4) Estatística relatório parcial ICT', '5) Coleta Lattes', '6) Colocar CPF', '7) Change Char', '8) Catai', '9) Exclui linhas', '10) Ju', '11) Ju txt', '12) dado', '13) Dado catai']
  for text in txt:
   print(text)
  while True:
@@ -1256,6 +1332,10 @@ def menu():
   elif escolha == '12':
    print('- Executando: ' + txt[int(escolha)].split(') ')[1])
    dado()
+   break
+  elif escolha == '13':
+   print('- Executando: ' + txt[int(escolha)].split(') ')[1])
+   dado_catai()
    break
   else:
    print('Tente novamente! Número inválido')
