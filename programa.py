@@ -12,6 +12,9 @@
 # 11) exclui linha de planilha
 # 12) Planilha Ju
 # 13) Pegar txt
+# 14) Exclui repetidos
+# 15) Ver dados e compara
+# 16) Dados catai
 # Menu
 #=============================================================================================
 #=============================================================================================
@@ -618,82 +621,104 @@ def estatistica_ict():
 #
 def coleta_lattes():
   driver1 = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
-  ids_pesquisadores = ['K4755167Z6', 'K4700334D5']
+  ids_pesquisadores = ['K4778100U8']
+  partes = [['ProducoesCientificas', "artigos-completos", "artigo-completo"], ['Eventos', 'ParticipacaoEventos', 'layout-cell layout-cell-11']]
   nome_publicacoes = []
   for id in ids_pesquisadores:
     driver1.get('http://buscatextual.cnpq.br/buscatextual/visualizacv.do?metodo=apresentar&id=' + id)
-    input("- posso?")
-    # 7.1) Verifica e realiza o reCAPTCHA
-    #try:
-    # recaptcha_driver = RecaptchaSolver(driver=driver1)
-    # recaptcha_iframe = driver1.find_element(by='xpath', value='//iframe[@title="reCAPTCHA"]')
-    # try:
-    #  recaptcha_driver.click_recaptcha_v2(iframe=recaptcha_iframe)
-    # except TimeoutException:
-    #  pass
-    # time.sleep(3)
-    # driver1.find_element(by='xpath', value='/html/body/form/div/div/div/div/div/div/div/div/div[4]/div/input').click()
-    # time.sleep(5)
-    #except NoSuchElementException:
-    # pass
-    # 7.2) Coleta os dados
-    i = 1
-    found_prod = 0
-    nome_pesq = str(driver1.title).split(' (')[1].replace(')','')
     while True:
-      try:
-       element = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) + ']/a')
-       driver1.execute_script("arguments[0].scrollIntoView(true);", element)
-       a_name = element.get_attribute("name")
-       if a_name == "ProducoesCientificas":
-        found_prod = 1
-        j = 1
-        while True:
-          div_id = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']').get_attribute("id")
-          if div_id == "artigos-completos":
-            k = 1
-            publicacoes = []
+      if len(driver1.current_url.split('?')) == 1:
+        time.sleep(3)
+        break
+    i = 1
+    nome_pesq = str(driver1.title).split(' (')[1].replace(')','')
+    publicacoes = []
+    for parte in partes:
+      par = []
+      found_prod = 0
+      # esse WHILE procura o campo de ProduçõesCientíficas
+      while True:
+        try:
+          element = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) + ']/a')
+          driver1.execute_script("arguments[0].scrollIntoView(true);", element)
+          a_name = element.get_attribute("name")
+          if a_name == parte[0]:
+            found_prod = 1
+            j = 1
+            # esse WHILE procura o campo artigos completos, dentro do produções
             while True:
-             try:
-              eleme = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']')
-              driver1.execute_script("arguments[0].scrollIntoView(true);", eleme)
-              eleme_class = eleme.get_attribute('class')
-              if eleme_class == "artigo-completo":
-                publicacao = []
-                l = 1
+              if parte[0] == "Eventos":
+                div_id = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div[' + str(j) + ']/div/a').get_attribute("name")
+              else:
+                div_id = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']').get_attribute("id")
+              if div_id == parte[1]:
+                k = 1
+                # Esse procura os artigos individualmente e trata
                 while True:
-                 try:
-                  div_span = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']/div[2]/div/span[' + str(l) + ']')
-                  div_span_tipo = div_span.get_attribute('data-tipo-ordenacao')
-                  if div_span_tipo == 'ano':
-                   publicacao.append(['ano', str(div_span.get_attribute('textContent'))])
-                   break
-                 except NoSuchElementException:
-                  pass
-                 l = l + 1
-                div_cvuri = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']/div[2]/div/div').get_attribute('cvuri')
-                dados = str(div_cvuri).split('&')
-                for dado in dados:
-                 tipo = dado.split('=')
-                 try:
-                  publicacao.append([tipo[0], tipo[1]])
-                 except IndexError:
-                  pass
-                publicacoes.append(publicacao)
-             except NoSuchElementException:
-              break
-             nome_publicacoes.append([nome_pesq, publicacoes])
-             k = k + 1
-            break
-          j = j + 1
-      except NoSuchElementException:
-       pass
-      if found_prod == 1:
-       break
-      else:
-       i = i + 1
+                  try:
+                    eleme = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']')
+                    driver1.execute_script("arguments[0].scrollIntoView(true);", eleme)
+                    eleme_class = eleme.get_attribute('class')
+                    if eleme_class == parte[2]:
+                      publicacao = []
+                      l = 1
+                      # Já dentro da publicação
+                      if parte[0] == 'Eventos':
+                        event = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']/div').text
+                        publicacao.append(event)
+                      else:
+                        while True:
+                          try:
+                            div_span = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']/div[2]/div/span[' + str(l) + ']')
+                            div_span_tipo = div_span.get_attribute('data-tipo-ordenacao')
+                            if div_span_tipo == 'ano':
+                              publicacao.append(['ano', str(div_span.get_attribute('textContent'))])
+                              break
+                          except NoSuchElementException:
+                            pass
+                          l = l + 1
+                        div_cvuri = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']/div[2]/div/div').get_attribute('cvuri')
+                        dados = str(div_cvuri).split('&')
+                        for dado in dados:
+                          tipo = dado.split('=')
+                          try:
+                            if tipo[0] == 'issn':
+                              new_tip = ""
+                              p = 0
+                              for letter in tipo[1]:
+                                if p == 4:
+                                  new_tip = new_tip + '-' + letter
+                                else:
+                                  new_tip = new_tip + letter
+                                p = p + 1
+                              tipo[1] = new_tip
+                            if tipo[0] == 'ano' or tipo[0] == 'issn' or tipo[0] == 'titulo' or tipo[0] == 'nomePeriodico':
+                              publicacao.append([tipo[0], tipo[1]])
+                          except IndexError:
+                            pass
+                      par.append(publicacao)
+                  except NoSuchElementException:
+                    break
+                  k = k + 1
+                break
+              j = j + 1
+        except NoSuchElementException:
+          pass
+        if found_prod == 1 or i > 100:
+          break
+        else:
+          i = i + 1
+      publicacoes.append(par)
+    nome_publicacoes.append([nome_pesq, publicacoes])
   for a in nome_publicacoes:
-   print(a)
+   print('\n\n----- ' + a[0])
+   for parte in a[1][0]:
+    print('\n--- Título: ' + parte[2][1] + ' - do ano de ' + parte[0][1])
+    print('- Periódico: ' + parte[3][1])
+    print('- ISSN do periódico: ' + parte[1][1])
+   for parte in a[1][1]:
+    print(parte)
+  f = input()
 #
 # 8) Função colocar CPF na planilha longa
 #
@@ -1113,7 +1138,7 @@ def jutxt():
    action.send_keys(Keys.ENTER).perform()
  time.sleep(10)
 #
-# Exclui repetidos
+# 14) Exclui repetidos
 #
 def sascha():
  driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
@@ -1155,7 +1180,7 @@ def sascha():
       if dados.index(inscricao) != 0:
        data_day_atual = data_dmy.split('-')[0]
 #
-# Ver dados e compara
+# 15) Ver dados e compara
 #
 def dado():
  driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
@@ -1201,7 +1226,7 @@ def dado():
    except ValueError:
     print(' - ' + name + ' não está na planilha "Lista Gerencial ICT 2023 24" na modalidade ' + edital)
 #
-# Dados catai
+# 16) Dados catai
 #
 def dado_catai():
  driver = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
