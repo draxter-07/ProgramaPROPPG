@@ -621,11 +621,11 @@ def estatistica_ict():
 #
 def coleta_lattes():
   driver1 = webdriver.Chrome(options=options, service=Service(ChromeDriverManager().install()))
-  ids_pesquisadores = ['K4778100U8']
-  partes = [['ProducoesCientificas', "artigos-completos", "artigo-completo"], ['Eventos', 'ParticipacaoEventos', 'layout-cell layout-cell-11']]
+  ids_pesquisadores = ['1000077717733917']
+  partes = [['ProducoesCientificas', "artigos-completos", "artigo-completo"], ['Eventos', 'ParticipacaoEventos', 'layout-cell layout-cell-11'], ['Orientacoes', 'Orientacoesconcluidas', 'layout-cell layout-cell-11']]
   nome_publicacoes = []
   for id in ids_pesquisadores:
-    driver1.get('http://buscatextual.cnpq.br/buscatextual/visualizacv.do?metodo=apresentar&id=' + id)
+    driver1.get('http://lattes.cnpq.br/' + id)
     while True:
       if len(driver1.current_url.split('?')) == 1:
         time.sleep(3)
@@ -649,6 +649,8 @@ def coleta_lattes():
             while True:
               if parte[0] == "Eventos":
                 div_id = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div[' + str(j) + ']/div/a').get_attribute("name")
+              elif parte[0] == 'Orientacoes':
+                div_id = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/a[' + str(j) + ']').get_attribute("name")
               else:
                 div_id = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']').get_attribute("id")
               if div_id == parte[1]:
@@ -656,7 +658,10 @@ def coleta_lattes():
                 # Esse procura os artigos individualmente e trata
                 while True:
                   try:
-                    eleme = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']')
+                    if parte[0] == 'Orientacoes':
+                      eleme = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(k) + ']')
+                    else:
+                      eleme = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']')
                     driver1.execute_script("arguments[0].scrollIntoView(true);", eleme)
                     eleme_class = eleme.get_attribute('class')
                     if eleme_class == parte[2]:
@@ -666,6 +671,12 @@ def coleta_lattes():
                       if parte[0] == 'Eventos':
                         event = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(j) + ']/div[' + str(k) + ']/div').text
                         publicacao.append(event)
+                      elif parte[0] == 'Orientacoes':
+                        event = driver1.find_element(by='xpath', value='/html/body/div[1]/div[3]/div/div/div/div[' + str(i) +']/div/div[' + str(k) + ']/div').text
+                        try:
+                          a = event.split(' ').index('Início:')
+                        except ValueError:
+                          publicacao.append(event)
                       else:
                         while True:
                           try:
@@ -696,7 +707,8 @@ def coleta_lattes():
                               publicacao.append([tipo[0], tipo[1]])
                           except IndexError:
                             pass
-                      par.append(publicacao)
+                      if publicacao != []:
+                        par.append(publicacao)
                   except NoSuchElementException:
                     break
                   k = k + 1
@@ -711,12 +723,17 @@ def coleta_lattes():
       publicacoes.append(par)
     nome_publicacoes.append([nome_pesq, publicacoes])
   for a in nome_publicacoes:
-   print('\n\n----- ' + a[0])
+   print('\n\n--------------- ' + a[0])
+   print("\n----- Publicações")
    for parte in a[1][0]:
-    print('\n--- Título: ' + parte[2][1] + ' - do ano de ' + parte[0][1])
+    print('--- Título: ' + parte[2][1] + ' - do ano de ' + parte[0][1])
     print('- Periódico: ' + parte[3][1])
     print('- ISSN do periódico: ' + parte[1][1])
+   print('\n----- Eventos')
    for parte in a[1][1]:
+    print(parte)
+   print('\n----- Orientações')
+   for parte in a[1][2]:
     print(parte)
   f = input()
 #
