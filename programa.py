@@ -243,57 +243,107 @@ def email_ict():
  action = ActionChains(driver)
  # Pegar emails sem repetir na planilha de 27 de março
  emails_totais = []
- driver.get('https://docs.google.com/spreadsheets/d/1Xu_tOTT16isAvKHzF-4iPcKiX0Weg9T-/edit#gid=450512029')
+ driver.get('https://docs.google.com/spreadsheets/d/1Bi-FtRbQIGdkgsupTo5iVFFkj2Bpg8Ff_9g-XrGdmf0/edit#gid=0')
  time.sleep(10)
- for i in range(2, 1294):
-  cell = 'H' + str(i)
+ for i in range(1, 140):
+  cell = 'A' + str(i)
   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell)
   driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
-  email = driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text
-  if email != '':
-   if len(list(emails_totais)) == 0:
-    emails_totais.append(email)
-   else:
-    try:
-     emails_totais.index(email)
-    except ValueError:
-     emails_totais.append(email)
+  nome = driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text
+  if nome != '' and nome != ' ':
+    emails_totais.append(nome.upper())
+ #fil = open("C:/Users/DIREPQ/Desktop/cnpq.txt", 'r')
+ #conj = fil.readlines()
+ #print(conj)
+ #driver.get('https://docs.google.com/spreadsheets/d/1Xu_tOTT16isAvKHzF-4iPcKiX0Weg9T-/edit#gid=450512029')
+ #time.sleep(10)
+ #for i in range(2, 1294):
+ # cell = 'G' + str(i)
+ # driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+ # driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell)
+ # driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+ # name = driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text
+ # for nome in nomes:
+ #   if name == nome:
+ #     cell = 'H' + str(i)
+ #     driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').clear()
+ #     driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(cell)
+ #     driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[1]/input').send_keys(Keys.ENTER)
+ #     email = driver.find_element(by='xpath', value='/html/body/div[2]/div[8]/div[6]/div[3]/div[3]/div/div/div').text
+ #     if email != '':
+ #       if len(list(emails_totais)) == 0:
+ #         emails_totais.append(email)
+ #       else:
+ #         try:
+ #           emails_totais.index(email)
+ #         except ValueError:
+ #           emails_totais.append(email)
  print('- Total de emails na planilha: ' + str(len(list(emails_totais))))
  # Escrever um email sobre
  email_a_serem_enviados = emails_totais
  driver.get('https://webmail.utfpr.edu.br/')
  time.sleep(3)
- driver.find_element(by='xpath', value='/html/body/div[2]/div[1]/form/table/tbody/tr[1]/td[2]/input').send_keys(user_emailpib)
- driver.find_element(by='xpath', value='/html/body/div[2]/div[1]/form/table/tbody/tr[2]/td[2]/input').send_keys(senha_emailpib)
- driver.find_element(by='xpath', value='/html/body/div[2]/div[1]/form/p/button').click()
+ try:
+  driver.find_element(by='xpath', value='/html/body/div[2]/div[1]/form/table/tbody/tr[1]/td[2]/input').send_keys(user_emailpib)
+  driver.find_element(by='xpath', value='/html/body/div[2]/div[1]/form/table/tbody/tr[2]/td[2]/input').send_keys(senha_emailpib)
+  driver.find_element(by='xpath', value='/html/body/div[2]/div[1]/form/p/button').click()
+ except NoSuchElementException:
+  pass
  time.sleep(5)
  driver.find_element(by='xpath', value='/html/body/div[2]/div[1]/a[2]').click()
  time.sleep(5)
- for k in range(0, int(len(list(email_a_serem_enviados))/50) + 1):
+ for k in range(0, int(len(list(email_a_serem_enviados))/50)):
   for l in range(0, 50):
    ind = k*50 + l
    try:
-    if l != 0:
-     keyboard.write(', ' + email_a_serem_enviados[ind])
-    else:
-     keyboard.write(email_a_serem_enviados[ind])
+    action.send_keys(email_a_serem_enviados[ind]).perform()
+    time.sleep(1)
+    action.send_keys(Keys.ENTER).perform()
+    action.send_keys(', ').perform()
    except IndexError:
     pass
+  # Assunto
   action.send_keys(Keys.TAB).perform()
-  keyboard.write('INFORMATIVO DEICT - Data limite para substituição de bolsistas - Ciclo 2022-2023')
+  action.send_keys('INFORMATIVO DEICT - Data limite para substituição de bolsistas - Ciclo 2022-2023').perform()
   action.send_keys(Keys.TAB).perform()
-  keyboard.write('Prezados(as) Pesquisadores, ')
+  # Texto
+  action.send_keys('Prezados Membros do Comitê Institucional de Iniciação Científica e Tecnológica').perform()
   action.send_keys(Keys.ENTER).perform()
-  keyboard.write('Informamos que o prazo limite para solicitar  substituição de BOLSISTAS do Ciclo 2022-2023 é:')
+  action.send_keys('Inicialmente, agradecemos a particpação dos pesquisadores nesse Comitê. ').perform()
   action.send_keys(Keys.ENTER).perform()
-  keyboard.write('Data limite: 05/maio/23')
+  action.send_keys('Convocamos a todos para participar da reunião de abertura dos trabalhos do Comitê:').perform()
   action.send_keys(Keys.ENTER).perform()
-  keyboard.write('As agências de fomento entendem que os três ùltimos meses são destinados a conclusão das atividades previstas no Plano de Trabalho, além de preparar o Relatório Final e apresentação do SICITE 2023.')
+  action.send_keys('Data: 23/junho/23').perform()
   action.send_keys(Keys.ENTER).perform()
-  keyboard.write('Ficamos à disposição.')
+  action.send_keys('Horário: 10:00 - 11:30 horas').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('Link: meet.google.com/xyx-yadm-hpw').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('Pauta: ').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('1.Apresentação do Fluxo de Iniciação Científica Tecnológica').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('2. Atribuições do Comitê ICT').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('3. Cronograma de atividades').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('4. Critérios para avaliação dos Planos de trabalho do Ciclo 2023-2024').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('5. Critérios para avaliação dos Relatórios Finais do Ciclo 2022-2024').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('6. Proposta de Instrução Normativa do Comitê Institucional de Iniciação Científica e Tecnológica').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('Desejamos um ótimo trabalho para o período de vigência do Comitê.').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('Ficamos à disposição').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('Atenciosamente,').perform()
+  action.send_keys(Keys.ENTER).perform()
+  action.send_keys('Profª Sascha Habu').perform()
   input('Próximo? Ao final, clique no campo dos destinatários')
-  time.sleep(5)  
+  time.sleep(10)  
 #
 # 6) Função para estatística com dados da planilha relatório parcial ICT
 #
