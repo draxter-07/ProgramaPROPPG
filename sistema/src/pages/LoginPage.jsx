@@ -7,8 +7,11 @@ import LogoUTFPR from './assets/logoUtfpr.jpg'
 export default function LoginPage(){
     const yellowcolorUTFPR = 'rgb(250, 200, 0, 0.9)';
     const nav = useNavigate();
-    let [user, setUser] = useState('');
-    let [passw, setPassw] = useState('');
+    //let [user, setUser] = useState('');
+    //let [passw, setPassw] = useState('');
+    const [mensagem, setMensagem] = useState('');
+    const [notFound, setNotFound] = useState('rgb(0, 0, 0)');
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
     const Screen = styled.div`
         width: 100vw;
         height: 100vh;
@@ -25,8 +28,12 @@ export default function LoginPage(){
         border-radius: 10px;
         width: auto;
         height: auto;
-        padding: 50px;
-        box-shadow: 0px 0px 20px rgb(0, 0, 0);
+        padding: 50px 50px 0px;
+        box-shadow: 0px 0px 20px ${notFound};
+        div{
+            height: 20px;
+            margin: 0px 0px 10px;
+        }
         img{
             width: 200px;
             height: auto;
@@ -44,7 +51,7 @@ export default function LoginPage(){
             background: ${yellowcolorUTFPR};
             border: none;
             border-radius: 5px;
-            margin: 45px 0px 0px;
+            margin: 45px 0px 10px;
             padding: 5px 10px;
             color: rgb(0, 0, 0);
             font-weight: bold;
@@ -53,19 +60,36 @@ export default function LoginPage(){
                 color: ${yellowcolorUTFPR};
             }
         }
+        :hover{
+            box-shadow: 0px 0px 25px ${notFound};
+        }
     `
-    function verificarLogin(){
-        console.log(user);
-        console.log(passw);
-        nav('/menu');
+    async function verificarLogin(e){
+        let loginSec = e.target.parentElement;
+        let user = loginSec.children[1].value;
+        let pass = loginSec.children[2].value;
+        if (user == 'philippe'){
+            setNotFound('rgb(0, 255, 0)');
+            setMensagem('Seja bem-vindo!')
+            await sleep(2000);
+            nav('/menu');
+        }
+        else {
+            setNotFound('rgb(255, 0, 0)');
+            setMensagem('Usuário não encontrado')
+            await sleep(2000);
+            setNotFound('rgb(0, 0, 0)');
+            setMensagem('')
+        }
     }
     return(
         <Screen>
             <LoginSection>
                 <img src={LogoUTFPR}></img>
-                <input type='username' placeholder='Usuário' onChange={(e) => setUser(e.target.value)} value={user}></input>
-                <input type='password' placeholder='Senha' onChange={(e) => setPassw(e.target.value)} value={passw}></input>
-                <button onClick={verificarLogin}>Login</button>
+                <input type='username' placeholder='Usuário'></input>
+                <input type='password' placeholder='Senha'></input>
+                <button onClick={(e) => verificarLogin(e)}>Login</button>
+                <div>{mensagem}</div>
             </LoginSection>
         </Screen>
     )
