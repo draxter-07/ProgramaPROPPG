@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage'
 import Menu from './pages/Menu'
 import PesqLaboratorio from './pages/PesqLaboratorio'
 import Forms from './pages/Forms'
+import CNPq from './pages/CNPq'
 import ResetStyle from "./styles/ResetStyle.js"
 
 export default function App() {
@@ -13,8 +14,9 @@ export default function App() {
         <Routes>
           <Route element={<LoginPage/>} path='/'/>
           <Route element={<Menu/>} path='/menu'/>
-          <Route element={<PesqLaboratorio/>} path='/searchlab'/>
-          <Route element={<Forms/>} path='/forms'/>
+          <Route element={<PesqLaboratorio/>} path='/Laboratório'/>
+          <Route element={<Forms/>} path='/Formulário'/>
+          <Route element={<CNPq/>} path='/CNPq'/>
         </Routes>
       </BrowserRouter>
     </>

@@ -1,13 +1,15 @@
 import styled from 'styled-components'
 import Topo from './comps/Topo.jsx'
-import Teste from './assets/teste.jpg'
-import Formsimg from './assets/forms.jpg'
+import teste from './assets/teste.jpg'
+import formsimg from './assets/forms.jpg'
+import cnpq from './assets/cnpq.png'
 import lab from './assets/lab.jpg'
 import { useNavigate } from 'react-router-dom'
 
 export default function Menu(){
     const yellowcolorUTFPR = 'rgb(250, 200, 0, 0.9)';
     const nav = useNavigate();
+    const itens = [['Laboratório', lab], ['Formulário', formsimg], ['CNPq', cnpq], ['vazio', teste], ['vazio', teste]]
     const MenuOption = styled.button`
         box-sizing: border-box;
         display: flex;
@@ -16,7 +18,7 @@ export default function Menu(){
         border-radius: 5px;
         width: 180px;
         height: fit-content;
-        margin: 0px 0px 15px;
+        margin: 0px 15px 15px 0px;
         img{
             width: 180px;
             height: 180px;
@@ -31,10 +33,23 @@ export default function Menu(){
             width: 100%;
             padding: 5px;
             margin: 0px;
-            
         }
         :hover{
             box-shadow: 0px 0px 5px rgb(0, 0, 0);
+        }
+        &::-webkit-scrollbar {
+            width: 100%;
+            height: 5px;
+        }
+        &::-webkit-scrollbar-track {
+            background: rgb(0, 0, 0, 0.5);
+            border-radius: 5px;
+
+        }
+        &::-webkit-scrollbar-thumb {
+            background: rgb(55, 120, 191);
+            border-radius: 5px;
+            border: 1px solid rgb(0, 0, 0);
         }
     `
     const Screen = styled.div`
@@ -48,61 +63,24 @@ export default function Menu(){
     `
     const Menu = styled.div`
         box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
         width: 50%;
         height: auto;
-        div{
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            height: auto;
-        }
+        display: flex;
+        flex-direction: row;
+        jusitfy-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
     `
     return(
         <Screen>
             <Topo/>
             <Menu>
-                <div>
-                    <MenuOption onClick={() => nav('/searchlab')}>
-                        <img src={lab}></img>
-                        <div>Laboratório</div>
+                {itens.map(item => 
+                    <MenuOption onClick={() => nav('/' + item[0])}>
+                        <img src={item[1]}></img>
+                        <div>{item[0]}</div>
                     </MenuOption>
-                    <MenuOption onClick={() => nav('/forms')}>
-                        <img src={Formsimg}></img>
-                        <div>Formulário</div>
-                    </MenuOption>
-                    <MenuOption onClick={() => nav('/')}>
-                        <img src={Teste}></img>
-                        <div>Vazio</div>
-                    </MenuOption>
-                    <MenuOption onClick={() => nav('/')}>
-                        <img src={Teste}></img>
-                        <div>Vazio</div>
-                    </MenuOption>
-                </div>
-                <div>
-                    <MenuOption onClick={() => nav('/')}>
-                        <img src={Teste}></img>
-                        <div>Vazio</div>
-                    </MenuOption>
-                    <MenuOption onClick={() => nav('/')}>
-                        <img src={Teste}></img>
-                        <div>Vazio</div>
-                    </MenuOption>
-                    <MenuOption onClick={() => nav('/')}>
-                        <img src={Teste}></img>
-                        <div>Vazio</div>
-                    </MenuOption>
-                    <MenuOption onClick={() => nav('/')}>
-                        <img src={Teste}></img>
-                        <div>Vazio</div>
-                    </MenuOption>
-                </div>
+                )}
             </Menu>
         </Screen>
     )
