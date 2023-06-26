@@ -17,16 +17,44 @@ export default function Menu(){
         padding: 50px 0px 0px;
     `
     const Conteudo = styled.div`
+        box-sizing: border-box;
         width: 70%;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
     `
     const PesquisaRelatorio = styled.div`
+        box-sizing: border-box;
         width: 50%;
         padding: 11px 0px 0px 0px;
-        input{
-            width: 100%;
+        div{
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            height: fit-content;
+            margin: 0px 0px 5px;
+            input{
+                box-sizing: border-box;
+                border-radius: 5px;
+                border: 1px solid rgb(0, 0, 0);
+                width: 60%;
+                height: 100%;
+                padding: 5px;
+            }
+            button{
+                box-sizing: border-box;
+                background: ${yellowcolorUTFPR};
+                border: none;
+                border-radius: 5px;
+                padding: 5px;
+                width: fit-content;
+                color: rgb(0, 0, 0);
+                :hover{
+                    background: rgb(0, 0, 0);
+                    color: ${yellowcolorUTFPR};
+                }
+            }
         }
     `
     function Forms(){
@@ -43,17 +71,18 @@ export default function Menu(){
     function Relatorio(atr){
         const Pdf = styled.embed`
             width: 100%;
-            height: 85vh;
+            height: 2450px;
             border: none;
             padding: none;
+            margin: none;
         `
         return(
             <Pdf type='application/pdf' src={atr.src}/>
         )
     }
     function findName(e){
-        const divPesquisa = e.target.parentElement;
-        const inputValue = divPesquisa.children[0].value;
+        const div = e.target.parentElement;
+        const inputValue = div.children[0].value;
         setName(inputValue);
     }
     return(
@@ -61,9 +90,11 @@ export default function Menu(){
             <Topo/>
             <Conteudo>
                 <PesquisaRelatorio>
-                    <input placeholder="Pesquise aqui o relatório do aluno"></input>
-                    <button onClick={(e) => findName(e)}>oi</button>
-                    <Relatorio src={name + '.pdf'}/>
+                    <div>
+                        <input placeholder="Pesquise aqui o relatório do aluno"></input>
+                        <button onClick={(e) => findName(e)}>Pesquisar aluno</button>
+                    </div>
+                    <Relatorio src={name}/>
                 </PesquisaRelatorio>
                 <Forms/>
             </Conteudo>

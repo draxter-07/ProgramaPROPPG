@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 export default function Menu(){
     const yellowcolorUTFPR = 'rgb(250, 200, 0, 0.9)';
     const nav = useNavigate();
-    const itens = [['Laboratório', lab], ['Formulário', formsimg], ['CNPq', cnpq], ['vazio', teste], ['vazio', teste]]
+    const itens = [['Laboratório', lab], ['Formulário', formsimg], ['CNPq', cnpq], ['vazio', teste], ['vazio', teste], ['vazio', teste], ['vazio', teste]]
     const MenuOption = styled.button`
         box-sizing: border-box;
         display: flex;
@@ -67,7 +67,7 @@ export default function Menu(){
         height: auto;
         display: flex;
         flex-direction: row;
-        jusitfy-content: space-between;
+        justify-content: flex-start;
         align-items: center;
         flex-wrap: wrap;
     `
