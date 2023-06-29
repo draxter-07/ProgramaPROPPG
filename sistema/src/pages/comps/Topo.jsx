@@ -68,12 +68,11 @@ export default function Topo(){
         }
         button{
             background: none;
-            height: 40px;
-            width: 40px;
-            border-radius: 20px;
+            height: 100%;
+            width: 100%;
             border: none;
             padding: 0px;
-            margin: 0px 0px 10px;
+            margin: 0px 0px 7px;
             img{
                 height: 40px;
                 width: 40px;
@@ -107,7 +106,7 @@ export default function Topo(){
                     <Link to='/'>Sair</Link>
                     <Link to='/'>Sair</Link>
                 </div>
-                <button onClick={openProfile}><img src={User}></img></button>
+                <button onMouseOver={openProfile}><img src={User}></img></button>
             </Profile>
         </>
     )
